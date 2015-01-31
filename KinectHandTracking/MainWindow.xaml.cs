@@ -297,7 +297,7 @@ namespace KinectHandTracking
                             }
                             if (atkState[body.TrackingId] == 2)
                             {
-                                health[_bodies[j].TrackingId] -= 4;
+                                //health[_bodies[j].TrackingId] -= 4;
                             }
                             if (atkState[body.TrackingId] == 3)
                             {
