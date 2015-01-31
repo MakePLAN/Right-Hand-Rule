@@ -163,30 +163,39 @@ namespace KinectHandTracking
 
                                 //tblRightHandState.Text = rightHandState + "\n" + fx.ToString() + "\n" + fy.ToString();
                                 //tblLeftHandState.Text = leftHandState;
+                                byte r = (byte)( (body.TrackingId / 256) % 256);
+                                byte g = (byte)(body.TrackingId % 256);
+                                byte b = (byte)(256 - r / 2 - g / 2);
 
                                 switch (body.HandRightState)
                                 {
                                     case HandState.Open:
-                                        rhandellip.Fill = new SolidColorBrush(Colors.Red);
+                                        rhandellip.Fill = new SolidColorBrush(Color.FromRgb(r, g, b));
                                         atkState[body.TrackingId] = 1;
-
                                         break;
                                     case HandState.Closed:
-                                        rhandellip.Fill = new SolidColorBrush(Colors.Green);
+                                        r /= 2;
+                                        g /= 2;
+                                        b /= 2;
+                                        rhandellip.Fill = new SolidColorBrush(Color.FromRgb(r, g, b));
                                         atkState[body.TrackingId] = 2;
                                         break;
                                     case HandState.Lasso:
-                                        rhandellip.Fill = new SolidColorBrush(Colors.Yellow);
+                                        r = (byte)(256 - r);
+                                        g = (byte)(256 - g);
+                                        b = (byte)(256 - b);
+                                        rhandellip.Fill = new SolidColorBrush(Color.FromRgb(r, g, b));
                                         atkState[body.TrackingId] = 3;
                                         break;
                                     case HandState.Unknown:
-                                        atkState[body.TrackingId] = 0;
                                         break;
                                     case HandState.NotTracked:
                                         break;
                                     default:
                                         break;
                                 }
+
+
                                 /*
                                 switch (body.HandLeftState)
                                 {
