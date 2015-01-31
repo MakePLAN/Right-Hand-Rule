@@ -28,6 +28,8 @@ namespace KinectHandTracking
         MultiSourceFrameReader _reader;
         IList<Body> _bodies;
         private CoordinateMapper coordinateMapper = null;
+        int attackState = 0;
+        int attackChange = 0;
         #endregion
 
         #region Constructor
@@ -46,7 +48,6 @@ namespace KinectHandTracking
             _sensor = KinectSensor.GetDefault();
 
             this.coordinateMapper = _sensor.CoordinateMapper;
-
             if (_sensor != null)
             {
                 _sensor.Open();
@@ -140,15 +141,46 @@ namespace KinectHandTracking
                                     case HandState.Open:
                                         rightHandState = "Open";
                                         rhandellip.Fill = new SolidColorBrush(Colors.Red);
+                                        if (attackState == 1)
+                                        {
+                                            attackChange = 0;
+                                        }
+                                        else
+                                        {
+                                            attackState = 1;
+                                            attackChange = 1;
+                                        }
                                         break;
                                     case HandState.Closed:
                                         rightHandState = "Closed";
+                                        rhandellip.Fill = new SolidColorBrush(Colors.Green);
+                                        if (attackState == 2)
+                                        {
+                                            attackChange = 0;
+                                        }
+                                        else
+                                        {
+                                            attackState = 2;
+                                            attackChange = 1;
+                                        }
                                         break;
                                     case HandState.Lasso:
                                         rightHandState = "Lasso";
+                                        rhandellip.Fill = new SolidColorBrush(Colors.Yellow);
+                                        if (attackState == 3)
+                                        {
+                                            attackChange = 0;
+                                        }
+                                        else
+                                        {
+                                            attackState = 3;
+                                            attackChange = 1;
+                                        }
                                         break;
                                     case HandState.Unknown:
                                         rightHandState = "Unknown...";
+                                        attackState = 0;
+                                        attackChange = 0;
                                         break;
                                     case HandState.NotTracked:
                                         rightHandState = "Not tracked";
@@ -178,6 +210,21 @@ namespace KinectHandTracking
                                         break;
                                 }
 
+                                if (attackChange==1)
+                                {
+                                    if (attackState == 1)
+                                    {
+                                        //Deal damage
+                                    }
+                                    if (attackState == 2)
+                                    {
+                                        //Block
+                                    }
+                                    if (attackState == 3)
+                                    {
+                                        //Spell
+                                    }
+                                }
 
                                 double fx = handRight.Position.X;
                                 double fy = handRight.Position.Y;
