@@ -271,11 +271,12 @@ namespace KinectHandTracking
                                 Width = health[body.TrackingId],
                                 //Width = 100,
                                 Height = 40,
-                                Fill = new SolidColorBrush(Colors.Red),
+                                Fill = new SolidColorBrush(Colors.Green),
                                 Opacity = 0.7
                             };
                             Rectangle chargebar = new Rectangle
                             {
+                               
                                 Width = charge[body.TrackingId],
                                 //Width = 100,
                                 Height = 40,
@@ -309,7 +310,7 @@ namespace KinectHandTracking
                                         }
                                         catch
                                         {
-                                            //health.Add(_bodies[j].TrackingId, 370);
+                                            health.Add(_bodies[j].TrackingId, 370);
                                         }
                                     }
                                 }
