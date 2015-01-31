@@ -27,9 +27,15 @@ namespace KinectHandTracking
         KinectSensor _sensor;
         MultiSourceFrameReader _reader;
         IList<Body> _bodies;
+        Dictionary<ulong, int> health;
         private CoordinateMapper coordinateMapper = null;
         int attackState = 0;
         int attackChange = 0;
+        int damage = 0;
+
+        IList<double> facex;
+        IList<double> facey;
+
         #endregion
 
         #region Constructor
@@ -46,6 +52,14 @@ namespace KinectHandTracking
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
             _sensor = KinectSensor.GetDefault();
+            facex = new double[10];
+            facey = new double[10];
+            health = new Dictionary<ulong, int>();
+            for (int i = 0; i < 10; i++)
+            {
+                facex[i] = 0;
+                facey[i] = 0;
+            }
 
             this.coordinateMapper = _sensor.CoordinateMapper;
             if (_sensor != null)
@@ -93,11 +107,20 @@ namespace KinectHandTracking
                     _bodies = new Body[frame.BodyFrameSource.BodyCount];
 
                     frame.GetAndRefreshBodyData(_bodies);
-
-                    foreach (var body in _bodies)
+                    for (int i = 0; i < _bodies.Count; i++)
                     {
-                        if (body != null)
+                        var body = _bodies[i];
+                        double fx=0, fy=0, hx=0, hy=0;
+                        if (body != null && body.TrackingId != 0)
                         {
+
+                            Ellipse rhandellip = new Ellipse
+                            {
+                                Width = 40,
+                                Height = 40,
+                                Fill = new SolidColorBrush(Colors.LightBlue),
+                                Opacity = 0.7
+                            };
                             if (body.IsTracked)
                             {
                                 // Find the joints
@@ -107,7 +130,6 @@ namespace KinectHandTracking
                                 Joint handLeft = body.Joints[JointType.HandLeft];
                                 Joint thumbLeft = body.Joints[JointType.ThumbLeft];
 
-                                
 
                                 // Draw hands and thumbs
                                 /*canvas.DrawHand(handRight, _sensor.CoordinateMapper);
@@ -116,17 +138,9 @@ namespace KinectHandTracking
                                 canvas.DrawThumb(thumbLeft, _sensor.CoordinateMapper);*/
 
                                 // Find the hand states
-                                string rightHandState = "-";
-                                string leftHandState = "-";
+                                //string rightHandState = "-";
+                                //string leftHandState = "-";
 
-
-                                Ellipse rhandellip = new Ellipse
-                                {
-                                    Width = 40,
-                                    Height = 40,
-                                    Fill = new SolidColorBrush(Colors.LightBlue),
-                                    Opacity = 0.7
-                                };
 
                                 Ellipse headellip = new Ellipse
                                 {
@@ -136,10 +150,17 @@ namespace KinectHandTracking
                                     Opacity = 0.7
                                 };
 
+                                hx = handRight.Position.X * 1000 + 900;
+                                hy = -handRight.Position.Y * 1000 + 800;
+                                fx = handRight.Position.X;
+                                fy = handRight.Position.Y;
+
+                                //tblRightHandState.Text = rightHandState + "\n" + fx.ToString() + "\n" + fy.ToString();
+                                //tblLeftHandState.Text = leftHandState;
+
                                 switch (body.HandRightState)
                                 {
                                     case HandState.Open:
-                                        rightHandState = "Open";
                                         rhandellip.Fill = new SolidColorBrush(Colors.Red);
                                         if (attackState == 1)
                                         {
@@ -152,7 +173,6 @@ namespace KinectHandTracking
                                         }
                                         break;
                                     case HandState.Closed:
-                                        rightHandState = "Closed";
                                         rhandellip.Fill = new SolidColorBrush(Colors.Green);
                                         if (attackState == 2)
                                         {
@@ -165,7 +185,6 @@ namespace KinectHandTracking
                                         }
                                         break;
                                     case HandState.Lasso:
-                                        rightHandState = "Lasso";
                                         rhandellip.Fill = new SolidColorBrush(Colors.Yellow);
                                         if (attackState == 3)
                                         {
@@ -178,134 +197,125 @@ namespace KinectHandTracking
                                         }
                                         break;
                                     case HandState.Unknown:
-                                        rightHandState = "Unknown...";
                                         attackState = 0;
                                         attackChange = 0;
                                         break;
                                     case HandState.NotTracked:
-                                        rightHandState = "Not tracked";
                                         break;
                                     default:
                                         break;
                                 }
-
+                                /*
                                 switch (body.HandLeftState)
                                 {
                                     case HandState.Open:
-                                        leftHandState = "Open";
                                         break;
                                     case HandState.Closed:
-                                        leftHandState = "Closed";
                                         break;
                                     case HandState.Lasso:
-                                        leftHandState = "Lasso";
                                         break;
                                     case HandState.Unknown:
-                                        leftHandState = "Unknown...";
                                         break;
                                     case HandState.NotTracked:
-                                        leftHandState = "Not tracked";
                                         break;
                                     default:
                                         break;
+                                }*/
+
+                                try
+                                {
+                                    int a = health[body.TrackingId];
+                                }
+                                catch
+                                {
+                                    health.Add(body.TrackingId, 400);
                                 }
 
-                                if (attackChange==1)
+                                if (attackChange == 1)
                                 {
                                     if (attackState == 1)
                                     {
-                                        //Deal damage
-                                    }
-                                    if (attackState == 2)
-                                    {
-                                        //Block
-                                    }
-                                    if (attackState == 3)
-                                    {
-                                        //Spell
+                                        if ( /*face!=ball*/ attackState != 2)
+                                            //////{
+                                            for (int j = 0; j < _bodies.Count; j++)
+                                            {
+                                                if (((facex[j] < (40 + hx)) || ((facex[j] + 100) > hx)) && ((facey[j] < (40 + hy)) || ((facey[j] + 100) > hy)))
+                                                {
+                                                    try
+                                                    {
+                                                        health[_bodies[j].TrackingId] -= 30;
+                                                        if (health[_bodies[j].TrackingId] <= 0)
+                                                        {
+                                                            health[_bodies[j].TrackingId] = 0;
+                                                        }
+                                                    }
+                                                    catch
+                                                    {
+                                                        health.Add(_bodies[j].TrackingId, 370);
+                                                    }
+                                                }
+                                            }
                                     }
                                 }
+                                if (attackState == 2)
+                                {
 
-                                double fx = handRight.Position.X;
-                                double fy = handRight.Position.Y;
-                                //tblRightHandState.Text = rightHandState + "\n" + fx.ToString() + "\n" + fy.ToString();
-                                //tblLeftHandState.Text = leftHandState;
 
-                                Canvas.SetLeft(rhandellip, fx*1000+900 - rhandellip.Width / 2);
-                                Canvas.SetTop(rhandellip, -fy*1000+800 - rhandellip.Height / 2);
+                                }
+                                if (attackState == 3)
+                                {
+                                    //Spell
+                                }
+                            }
 
+
+                            var headJoint = body.Joints[JointType.Head].Position;
+
+                            CameraSpacePoint pt = new CameraSpacePoint()
+                            {
+                                X = headJoint.X,
+                                Y = headJoint.Y,
+                                Z = headJoint.Z
+                            };
+                            ColorSpacePoint clpt = this.coordinateMapper.MapCameraPointToColorSpace(pt);
+                            facex[i] = clpt.X;
+                            facey[i] = clpt.Y;
+                            fx -= headJoint.X;
+                            fy -= headJoint.Y;
+                            Rectangle headbox = new Rectangle
+                            {
+                                Width = 100,
+                                Height = 100,
+                                Fill = new SolidColorBrush(Colors.Orange),
+                                Opacity = 0.7
+                            };
+                            Rectangle healthbar = new Rectangle
+                            {
+                                Width = health[body.TrackingId],
+                                //Width = 100,
+                                Height = 40,
+                                Fill = new SolidColorBrush(Colors.Red),
+                                Opacity = 0.7
+                            };
+                            try
+                            {
+                                Canvas.SetLeft(rhandellip, 500+fx*3000);
+                                Canvas.SetTop(rhandellip, hy);
+                                //Canvas.SetLeft(rhandellip, 1000);
+                                //Canvas.SetTop(rhandellip, 500);
                                 canvas.Children.Add(rhandellip);
-
-                                var headJoint = body.Joints[JointType.Head].Position;
-
-                                CameraSpacePoint pt = new CameraSpacePoint()
-                                {
-                                    X = headJoint.X,
-                                    Y = headJoint.Y,
-                                    Z = headJoint.Z
-                                };
-                                ColorSpacePoint clpt = this.coordinateMapper.MapCameraPointToColorSpace(pt);
-                                Rectangle headbox = new Rectangle
-                                {
-                                    Width = 80,
-                                    Height = 80,
-                                    Fill = new SolidColorBrush(Colors.Orange),
-                                    Opacity = 0.7
-                                };
-
-                                Rectangle healthbar = new Rectangle
-                                {
-                                    Width = 400,
-                                    Height = 40,
-                                    Fill = new SolidColorBrush(Colors.Red),
-                                    Opacity = 0.7
-                                };
-
-
-
-                                Canvas.SetLeft(headbox, clpt.X- headbox.Width / 2);
-                                Canvas.SetTop(headbox, clpt.Y- headbox.Height / 2);
+                                Canvas.SetLeft(headbox, clpt.X - headbox.Width / 2);
+                                Canvas.SetTop(headbox, clpt.Y - headbox.Height / 2);
+                                canvas.Children.Add(headbox);
                                 Canvas.SetLeft(healthbar, clpt.X - healthbar.Width / 2);
                                 Canvas.SetTop(healthbar, clpt.Y - 100 - headbox.Height / 2);
-
-                                canvas.Children.Add(headbox);
                                 canvas.Children.Add(healthbar);
-
-                                //healthbar.Width = 100;
-
-                                /*
-                                FaceFrameSource[] faceFrameSources = null;
-                                FaceFrameReader[] faceFrameReaders = null;
-                                FaceFrameResult[] faceFrameResults = null;
-
-                                faceFrameSources = new FaceFrameSource[_bodies.Count];
-                                faceFrameReaders = new FaceFrameReader[_bodies.Count];
-                                for (int i = 0; i < _bodies.Count; i++)
-                                {
-                                    // create the face frame source with the required face frame features and an initial tracking Id of 0
-                                    faceFrameSources[i] = new FaceFrameSource(this._sensor, 0, FaceFrameFeatures.BoundingBoxInColorSpace);
-
-                                    // open the corresponding reader
-                                    faceFrameReaders[i] = faceFrameSources[i].OpenReader();
-                                }
-                                
-                                // allocate storage to store face frame results for each face in the FOV
-                                faceFrameResults = new FaceFrameResult[_bodies.Count];
-                                var faceBoxSource = faceFrameResults[0].FaceBoundingBoxInColorSpace;
-                                Rectangle fb = new Rectangle
-                                {
-                                    Width = faceBoxSource.Right - faceBoxSource.Left,
-                                    Height = faceBoxSource.Bottom - faceBoxSource.Top,
-                                    Fill = new SolidColorBrush(Colors.Orange),
-                                    Opacity = 0.7
-                                };
-                                Canvas.SetLeft(fb, faceBoxSource.Left - fb.Width / 2);
-                                Canvas.SetTop(fb, faceBoxSource.Top - fb.Height / 2);
-
-                                canvas.Children.Add(fb);*/
-                                
+                            }
+                            catch
+                            {
 
                             }
+
                         }
                     }
                 }
