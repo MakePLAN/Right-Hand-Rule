@@ -34,6 +34,9 @@ namespace KinectHandTracking
         int attackState = 0;
         int attackChange = 0;
         int damage = 0;
+        int newchlcount = 0;
+        int count1 = 0;
+        int gameState = 1;
 
         IList<double> facex;
         IList<double> facey;
@@ -50,7 +53,6 @@ namespace KinectHandTracking
         #endregion
 
         #region Event handlers
-
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
             _sensor = KinectSensor.GetDefault();
@@ -118,6 +120,7 @@ namespace KinectHandTracking
                         double fx = 0, fy = 0, hx = 0, hy = 0;
                         if (body != null && body.TrackingId != 0)
                         {
+                            
 
                             Ellipse rhandellip = new Ellipse
                             {
@@ -210,7 +213,10 @@ namespace KinectHandTracking
                                 }
                                 catch
                                 {
+
                                     health.Add(body.TrackingId, 400);
+                                    newchlcount = 0;
+                                    
                                 }
 
                                 try
@@ -264,7 +270,7 @@ namespace KinectHandTracking
                                 Width = 100,
                                 Height = 100,
                                 Fill = new SolidColorBrush(Colors.Orange),
-                                Opacity = 0.7
+                                Opacity = 0
                             };
                             Rectangle healthbar = new Rectangle
                             {
@@ -276,27 +282,28 @@ namespace KinectHandTracking
                             };
                             Rectangle chargebar = new Rectangle
                             {
-                               
-                                Width = charge[body.TrackingId],
-                                //Width = 100,
-                                Height = 40,
-                                Fill = new SolidColorBrush(Colors.Yellow),
-                                Opacity = 0.7
+                                    Width = charge[body.TrackingId],
+                                    //Width = 100,
+                                    Height = 40,
+                                    Fill = new SolidColorBrush(Colors.Yellow),
+                                    Opacity = 0.7
+                                
                             };
-
+                            
                             charge[body.TrackingId] += 3;
-
+                            if (charge[body.TrackingId] > 400)
+                                charge[body.TrackingId] = 400;
                             if (atkState[body.TrackingId] == 1)
                             {
                                 for (int j = 0; j < _bodies.Count; j++)
                                 {
-                                    if (((facex[j] < (40 + 500 + fx * 3000)) && ((facex[j] + 100) > (500 + fx * 3000))) && ((facey[j] < (40 + hy)) && ((facey[j] + 100) > hy)))
+                                    if (((facex[j] < (40 + 600 + fx * 2000)) && ((facex[j] + 100) > (600 + fx * 2000))) && ((facey[j] < (40 + hy - 200)) && ((facey[j] + 100) > (hy - 200))))
                                     {
                                         try
                                         {
                                             if (atkState[_bodies[j].TrackingId] == 2)
                                             {
-                                                health[_bodies[j].TrackingId] += 10;
+                                                health[_bodies[j].TrackingId] += 20;
                                             }
                                             else
                                             {
@@ -310,14 +317,20 @@ namespace KinectHandTracking
                                         }
                                         catch
                                         {
-                                            health.Add(_bodies[j].TrackingId, 370);
+                                            try {
+                                                health.Add(_bodies[j].TrackingId, 370);
+                                            }
+                                            catch
+                                            {
+
+                                            }
                                         }
                                     }
                                 }
                             }
                             if (atkState[body.TrackingId] == 2)
                             {
-                                health[body.TrackingId] -= 2;
+                                health[body.TrackingId] -= 1;
                                 if (health[body.TrackingId] < 0)
                                 {
                                     health[body.TrackingId] = 0;
@@ -327,11 +340,16 @@ namespace KinectHandTracking
                             {
                                 for (int j = 0; j < _bodies.Count; j++)
                                 {
-                                    if (((facex[j] < (40 + 500 + fx * 3000)) && ((facex[j] + 100) > (500 + fx * 3000))) && ((facey[j] < (40 + hy)) && ((facey[j] + 100) > hy)))
+                                    if (((facex[j] < (40 + 600 + fx * 2000)) && ((facex[j] + 100) > (600 + fx * 2000))) && ((facey[j] < (40 + hy - 200)) && ((facey[j] + 100) > (hy-200))))
                                     {
                                         try
                                         {
-                                            health[_bodies[j].TrackingId] -= charge[body.TrackingId];
+                                            if (atkState[_bodies[j].TrackingId] == 2)
+                                            {
+                                                health[_bodies[j].TrackingId] -= charge[body.TrackingId] / 8;
+                                                charge[body.TrackingId] = 0;
+                                            }
+                                            health[_bodies[j].TrackingId] -= charge[body.TrackingId]/2;
                                             if (health[_bodies[j].TrackingId] <= 0)
                                             {
                                                 health[_bodies[j].TrackingId] = 0;
@@ -340,11 +358,19 @@ namespace KinectHandTracking
                                         }
                                         catch
                                         {
-                                            charge.Add(_bodies[j].TrackingId, 0);
+                                            try
+                                            {
+                                                charge.Add(_bodies[j].TrackingId, 0);
+                                            }
+                                            catch
+                                            {
+
+                                            }
                                         }
                                     }
+                                    charge[body.TrackingId] /= 2;
                                 }
-                                charge[body.TrackingId] = 0;
+                                //charge[body.TrackingId] = 0;
                             }
                             string Testing = "right hand";
                             string Facetesting = "Face";
@@ -354,8 +380,6 @@ namespace KinectHandTracking
                             {
                                 Canvas.SetLeft(rhandellip, 600 + fx * 2000);
                                 Canvas.SetTop(rhandellip, hy - 200);
-                                //Canvas.SetLeft(rhandellip, 1000);
-                                //Canvas.SetTop(rhandellip, 500);
                                 canvas.Children.Add(rhandellip);
                                 Canvas.SetLeft(headbox, clpt.X - headbox.Width / 2);
                                 Canvas.SetTop(headbox, clpt.Y - headbox.Height / 2);
@@ -366,12 +390,60 @@ namespace KinectHandTracking
                                 Canvas.SetLeft(chargebar, clpt.X - healthbar.Width / 2);
                                 Canvas.SetTop(chargebar, clpt.Y - 55 - headbox.Height / 2);
                                 canvas.Children.Add(chargebar);
+                                
+
+                                
                             }
                             catch
                             {
 
                             }
 
+                        }
+                    }
+                    
+
+                    if (gameState == 1)
+                    {
+                        if (count1 < 100)
+                        {
+                            BitmapImage image = new BitmapImage();
+                            image.BeginInit();
+                            image.UriSource = new Uri("start.jpg", UriKind.RelativeOrAbsolute);
+                            image.EndInit();
+                            ImageBrush myImageBrush = new ImageBrush(image);
+
+                            Canvas myCanvas = new Canvas();
+                            myCanvas.Width = 1000;
+                            myCanvas.Height = 200;
+                            myCanvas.Background = myImageBrush;
+                            Canvas.SetLeft(myCanvas, 500);
+                            Canvas.SetTop(myCanvas, 100);
+                            canvas.Children.Add(myCanvas);
+                            count1++;
+
+                        }
+                        else
+                            gameState = 0;
+                    }
+                    else
+                    {
+                        if (newchlcount < 100 && gameState == 0)
+                        {
+                            BitmapImage image = new BitmapImage();
+                            image.BeginInit();
+                            image.UriSource = new Uri("challenge.png", UriKind.RelativeOrAbsolute);
+                            image.EndInit();
+                            ImageBrush myImageBrush = new ImageBrush(image);
+
+                            Canvas myCanvas = new Canvas();
+                            myCanvas.Width = 1000;
+                            myCanvas.Height = 200;
+                            myCanvas.Background = myImageBrush;
+                            Canvas.SetLeft(myCanvas, 500);
+                            Canvas.SetTop(myCanvas, 100);
+                            canvas.Children.Add(myCanvas);
+                            newchlcount++;
                         }
                     }
                 }
