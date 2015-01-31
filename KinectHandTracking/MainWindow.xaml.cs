@@ -27,7 +27,7 @@ namespace KinectHandTracking
         KinectSensor _sensor;
         MultiSourceFrameReader _reader;
         IList<Body> _bodies;
-
+        private CoordinateMapper coordinateMapper = null;
         #endregion
 
         #region Constructor
@@ -44,6 +44,8 @@ namespace KinectHandTracking
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
             _sensor = KinectSensor.GetDefault();
+
+            this.coordinateMapper = _sensor.CoordinateMapper;
 
             if (_sensor != null)
             {
@@ -176,6 +178,7 @@ namespace KinectHandTracking
                                         break;
                                 }
 
+
                                 double fx = handRight.Position.X;
                                 double fy = handRight.Position.Y;
                                 tblRightHandState.Text = rightHandState + "\n" + fx.ToString() + "\n" + fy.ToString();
@@ -188,6 +191,13 @@ namespace KinectHandTracking
 
                                 var headJoint = body.Joints[JointType.Head].Position;
 
+                                CameraSpacePoint pt = new CameraSpacePoint()
+                                {
+                                    X = headJoint.X,
+                                    Y = headJoint.Y,
+                                    Z = headJoint.Z
+                                };
+                                ColorSpacePoint clpt = this.coordinateMapper.MapCameraPointToColorSpace(pt);
                                 Rectangle headbox = new Rectangle
                                 {
                                     Width = 80,
@@ -196,8 +206,8 @@ namespace KinectHandTracking
                                     Opacity = 0.7
                                 };
 
-                                Canvas.SetLeft(headbox, headJoint.X*1000 + 700- headbox.Width / 2);
-                                Canvas.SetTop(headbox, -headJoint.Y*1000 + 900- headbox.Height / 2);
+                                Canvas.SetLeft(headbox, clpt.X- headbox.Width / 2);
+                                Canvas.SetTop(headbox, clpt.Y- headbox.Height / 2);
 
                                 canvas.Children.Add(headbox);
 
