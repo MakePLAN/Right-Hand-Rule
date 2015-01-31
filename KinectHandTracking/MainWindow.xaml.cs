@@ -271,7 +271,7 @@ namespace KinectHandTracking
                                 canvas.Children.Add(headbox);
                                 canvas.Children.Add(healthbar);
 
-                                healthbar.Width = 100;
+                                //healthbar.Width = 100;
 
                                 /*
                                 FaceFrameSource[] faceFrameSources = null;
