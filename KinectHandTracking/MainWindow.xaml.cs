@@ -164,8 +164,11 @@ namespace KinectHandTracking
                                 //tblRightHandState.Text = rightHandState + "\n" + fx.ToString() + "\n" + fy.ToString();
                                 //tblLeftHandState.Text = leftHandState;
                                 byte r = (byte)( (body.TrackingId / 256) % 256);
+                                r = (byte)((r / 16) + (r % 16) * 16);
                                 byte g = (byte)(body.TrackingId % 256);
+                                g = (byte)((g / 16) + (g % 16) * 16);
                                 byte b = (byte)(256 - r / 2 - g / 2);
+                                b = (byte)((b / 16) + (b % 16) * 16);
 
                                 switch (body.HandRightState)
                                 {
@@ -319,7 +322,8 @@ namespace KinectHandTracking
                                         }
                                         catch
                                         {
-                                            health.Add(_bodies[j].TrackingId, 370);
+                                            try { health.Add(_bodies[j].TrackingId, 370); }
+                                            catch { }
                                         }
                                     }
                                 }
