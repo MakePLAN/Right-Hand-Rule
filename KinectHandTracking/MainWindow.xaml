@@ -1,15 +1,26 @@
-﻿<Window x:Class="KinectHandTracking.MainWindow" 
-         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" 
-         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" 
-         Title="Kinect 2 hand tracking" Height="800" Width="1200" Loaded="Window_Loaded" Closed="Window_Closed">
+﻿<Window x:Class="KinectHandTracking.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Kinect 2 hand tracking" Height="800" Width="1200" Loaded="Window_Loaded" Closed="Window_Closed">
     <Grid>
-        <Viewbox>
+        <Viewbox Margin="0,-25,0,0.5">
             <Grid Width="1920" Height="1080">
                 <Image Name="camera" />
                 <Canvas Name="canvas" />
             </Grid>
         </Viewbox>
-        <Grid Style="{StaticResource ContainerStyle}">
+        <Grid Style="{StaticResource ContainerStyle}"  Width="1600" Height="60" VerticalAlignment="Top" >
+            <Image Height="300" Width="1600" Stretch="UniformToFill" 
+    Source="red.jpg" VerticalAlignment="Top"/>
+        </Grid>
+        <Grid Style="{StaticResource ContainerStyle}"  Width="1600" Height="60" VerticalAlignment="Bottom" >
+            <Image Height="200" Width="1600" Stretch="UniformToFill" 
+    Source="yellow.jpg" VerticalAlignment="Top"/>
+        </Grid>
+
+
+
+        <!--<Grid Style="{StaticResource ContainerStyle}">
             <StackPanel Margin="20">
                 <StackPanel>
                     <TextBlock Text="Right hand state:" Style="{StaticResource TitleStyle}" />
@@ -20,6 +31,6 @@
                     <TextBlock Name="tblLeftHandState" Text="-" Style="{StaticResource StateStyle}" />
                 </StackPanel>
             </StackPanel>
-        </Grid>
+        </Grid>-->
     </Grid>
-</Window> 
+</Window>

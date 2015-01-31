@@ -28,8 +28,8 @@ namespace KinectHandTracking
         MultiSourceFrameReader _reader;
         IList<Body> _bodies;
         Dictionary<ulong, int> health;
+        Dictionary<ulong, int> charge;
         Dictionary<ulong, int> atkState;
-        Dictionary<ulong, int> atkChange;
         private CoordinateMapper coordinateMapper = null;
         int attackState = 0;
         int attackChange = 0;
@@ -57,7 +57,7 @@ namespace KinectHandTracking
             facex = new double[10];
             facey = new double[10];
             health = new Dictionary<ulong, int>();
-            atkChange = new Dictionary<ulong, int>();
+            charge = new Dictionary<ulong, int>();
             atkState = new Dictionary<ulong, int>();
 
             for (int i = 0; i < 10; i++)
@@ -115,7 +115,7 @@ namespace KinectHandTracking
                     for (int i = 0; i < _bodies.Count; i++)
                     {
                         var body = _bodies[i];
-                        double fx=0, fy=0, hx=0, hy=0;
+                        double fx = 0, fy = 0, hx = 0, hy = 0;
                         if (body != null && body.TrackingId != 0)
                         {
 
@@ -123,7 +123,7 @@ namespace KinectHandTracking
                             {
                                 Width = 40,
                                 Height = 40,
-                                Fill = new SolidColorBrush(Colors.LightBlue),
+                                Fill = new SolidColorBrush(Colors.Red),
                                 Opacity = 0.7
                             };
                             if (body.IsTracked)
@@ -161,8 +161,8 @@ namespace KinectHandTracking
                                 hx = 500 + fx * 3000;
                                 fy = handRight.Position.Y;
 
-                                tblRightHandState.Text = rightHandState + "\n" + fx.ToString() + "\n" + fy.ToString();
-                                tblLeftHandState.Text = leftHandState;
+                                //tblRightHandState.Text = rightHandState + "\n" + fx.ToString() + "\n" + fy.ToString();
+                                //tblLeftHandState.Text = leftHandState;
 
                                 switch (body.HandRightState)
                                 {
@@ -222,6 +222,15 @@ namespace KinectHandTracking
                                     atkState.Add(body.TrackingId, 0);
                                 }
 
+                                try
+                                {
+                                    int a = charge[body.TrackingId];
+                                }
+                                catch
+                                {
+                                    charge.Add(body.TrackingId, 0);
+                                }
+
                                 /*try
                                 {
                                     int a = atkChange[body.TrackingId];
@@ -265,6 +274,16 @@ namespace KinectHandTracking
                                 Fill = new SolidColorBrush(Colors.Red),
                                 Opacity = 0.7
                             };
+                            Rectangle chargebar = new Rectangle
+                            {
+                                Width = charge[body.TrackingId],
+                                //Width = 100,
+                                Height = 40,
+                                Fill = new SolidColorBrush(Colors.Yellow),
+                                Opacity = 0.7
+                            };
+
+                            charge[body.TrackingId] += 3;
 
                             if (atkState[body.TrackingId] == 1)
                             {
@@ -280,7 +299,7 @@ namespace KinectHandTracking
                                             }
                                             else
                                             {
-                                                health[_bodies[j].TrackingId] -= 10;
+                                                health[_bodies[j].TrackingId] -= 5;
                                                 if (health[_bodies[j].TrackingId] <= 0)
                                                 {
                                                     health[_bodies[j].TrackingId] = 0;
@@ -290,27 +309,50 @@ namespace KinectHandTracking
                                         }
                                         catch
                                         {
-                                            health.Add(_bodies[j].TrackingId, 370);
+                                            //health.Add(_bodies[j].TrackingId, 370);
                                         }
                                     }
                                 }
                             }
                             if (atkState[body.TrackingId] == 2)
                             {
-                                //health[_bodies[j].TrackingId] -= 4;
+                                health[body.TrackingId] -= 2;
+                                if (health[body.TrackingId] < 0)
+                                {
+                                    health[body.TrackingId] = 0;
+                                }
                             }
                             if (atkState[body.TrackingId] == 3)
                             {
-                                //charge
+                                for (int j = 0; j < _bodies.Count; j++)
+                                {
+                                    if (((facex[j] < (40 + 500 + fx * 3000)) && ((facex[j] + 100) > (500 + fx * 3000))) && ((facey[j] < (40 + hy)) && ((facey[j] + 100) > hy)))
+                                    {
+                                        try
+                                        {
+                                            health[_bodies[j].TrackingId] -= charge[body.TrackingId];
+                                            if (health[_bodies[j].TrackingId] <= 0)
+                                            {
+                                                health[_bodies[j].TrackingId] = 0;
+                                            }
+                                            charge[body.TrackingId] = 0;
+                                        }
+                                        catch
+                                        {
+                                            charge.Add(_bodies[j].TrackingId, 0);
+                                        }
+                                    }
+                                }
+                                charge[body.TrackingId] = 0;
                             }
                             string Testing = "right hand";
                             string Facetesting = "Face";
-                            tblRightHandState.Text = Testing + "\n" + (500 + fx * 3000).ToString() + "\n" + hy.ToString();
-                            tblLeftHandState.Text = Facetesting + "\n" + (clpt.X - headbox.Width / 2).ToString() + "\n" + (clpt.Y - headbox.Height / 2).ToString();
+                           // tblRightHandState.Text = Testing + "\n" + (500 + fx * 3000).ToString() + "\n" + hy.ToString();
+                            //tblLeftHandState.Text = Facetesting + "\n" + (clpt.X - headbox.Width / 2).ToString() + "\n" + (clpt.Y - headbox.Height / 2).ToString();
                             try
                             {
-                                Canvas.SetLeft(rhandellip, 500+fx*3000);
-                                Canvas.SetTop(rhandellip, hy);
+                                Canvas.SetLeft(rhandellip, 600 + fx * 2000);
+                                Canvas.SetTop(rhandellip, hy - 200);
                                 //Canvas.SetLeft(rhandellip, 1000);
                                 //Canvas.SetTop(rhandellip, 500);
                                 canvas.Children.Add(rhandellip);
@@ -320,6 +362,9 @@ namespace KinectHandTracking
                                 Canvas.SetLeft(healthbar, clpt.X - healthbar.Width / 2);
                                 Canvas.SetTop(healthbar, clpt.Y - 100 - headbox.Height / 2);
                                 canvas.Children.Add(healthbar);
+                                Canvas.SetLeft(chargebar, clpt.X - healthbar.Width / 2);
+                                Canvas.SetTop(chargebar, clpt.Y - 55 - headbox.Height / 2);
+                                canvas.Children.Add(chargebar);
                             }
                             catch
                             {
