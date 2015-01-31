@@ -3,12 +3,20 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="Kinect 2 hand tracking" Height="800" Width="1200" Loaded="Window_Loaded" Closed="Window_Closed">
     <Grid>
-        <Viewbox>
+        <Viewbox Margin="0,-25,0,0.5">
             <Grid Width="1920" Height="1080">
                 <Image Name="camera" />
                 <Canvas Name="canvas" />
             </Grid>
         </Viewbox>
+        <Grid Style="{StaticResource ContainerStyle}"  Width="1400" Height="60" VerticalAlignment="Top" >
+        </Grid>
+        <Grid Style="{StaticResource ContainerStyle}" Width="40" Height="800" >
+        </Grid>
+        <Grid Style="{StaticResource ContainerStyle}" Width="1400" Height="40" VerticalAlignment="Bottom" >
+        </Grid>
+        <Grid Style="{StaticResource ContainerStyle}" Width="40" Height="800" HorizontalAlignment="Left" >
+        </Grid>
         <!--<Grid Style="{StaticResource ContainerStyle}">
             <StackPanel Margin="20">
                 <StackPanel>

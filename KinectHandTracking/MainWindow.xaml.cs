@@ -214,6 +214,8 @@ namespace KinectHandTracking
                                     Opacity = 0.7
                                 };
 
+
+
                                 Canvas.SetLeft(headbox, clpt.X- headbox.Width / 2);
                                 Canvas.SetTop(headbox, clpt.Y- headbox.Height / 2);
                                 Canvas.SetLeft(healthbar, clpt.X - healthbar.Width / 2);
@@ -221,6 +223,8 @@ namespace KinectHandTracking
 
                                 canvas.Children.Add(headbox);
                                 canvas.Children.Add(healthbar);
+
+                                healthbar.Width = 100;
 
                                 /*
                                 FaceFrameSource[] faceFrameSources = null;
