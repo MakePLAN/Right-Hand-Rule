@@ -181,8 +181,8 @@ namespace KinectHandTracking
 
                                 double fx = handRight.Position.X;
                                 double fy = handRight.Position.Y;
-                                tblRightHandState.Text = rightHandState + "\n" + fx.ToString() + "\n" + fy.ToString();
-                                tblLeftHandState.Text = leftHandState;
+                                //tblRightHandState.Text = rightHandState + "\n" + fx.ToString() + "\n" + fy.ToString();
+                                //tblLeftHandState.Text = leftHandState;
 
                                 Canvas.SetLeft(rhandellip, fx*1000+900 - rhandellip.Width / 2);
                                 Canvas.SetTop(rhandellip, -fy*1000+800 - rhandellip.Height / 2);
@@ -206,10 +206,21 @@ namespace KinectHandTracking
                                     Opacity = 0.7
                                 };
 
+                                Rectangle healthbar = new Rectangle
+                                {
+                                    Width = 400,
+                                    Height = 40,
+                                    Fill = new SolidColorBrush(Colors.Red),
+                                    Opacity = 0.7
+                                };
+
                                 Canvas.SetLeft(headbox, clpt.X- headbox.Width / 2);
                                 Canvas.SetTop(headbox, clpt.Y- headbox.Height / 2);
+                                Canvas.SetLeft(healthbar, clpt.X - healthbar.Width / 2);
+                                Canvas.SetTop(healthbar, clpt.Y - 100 - headbox.Height / 2);
 
                                 canvas.Children.Add(headbox);
+                                canvas.Children.Add(healthbar);
 
                                 /*
                                 FaceFrameSource[] faceFrameSources = null;

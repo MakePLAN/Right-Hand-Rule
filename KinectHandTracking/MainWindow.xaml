@@ -9,7 +9,7 @@
                 <Canvas Name="canvas" />
             </Grid>
         </Viewbox>
-        <Grid Style="{StaticResource ContainerStyle}">
+        <!--<Grid Style="{StaticResource ContainerStyle}">
             <StackPanel Margin="20">
                 <StackPanel>
                     <TextBlock Text="Right hand state:" Style="{StaticResource TitleStyle}" />
@@ -20,6 +20,6 @@
                     <TextBlock Name="tblLeftHandState" Text="-" Style="{StaticResource StateStyle}" />
                 </StackPanel>
             </StackPanel>
-        </Grid>
+        </Grid>-->
     </Grid>
 </Window>
