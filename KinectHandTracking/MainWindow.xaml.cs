@@ -269,7 +269,7 @@ namespace KinectHandTracking
                             {
                                 Width = 100,
                                 Height = 100,
-                                Fill = new SolidColorBrush(Colors.Orange),
+                                //Fill = new SolidColorBrush(Colors.Orange),
                                 Opacity = 0
                             };
                             Rectangle healthbar = new Rectangle
@@ -280,6 +280,7 @@ namespace KinectHandTracking
                                 Fill = new SolidColorBrush(Colors.Green),
                                 Opacity = 0.7
                             };
+                            
                             Rectangle chargebar = new Rectangle
                             {
                                     Width = charge[body.TrackingId],
@@ -390,8 +391,26 @@ namespace KinectHandTracking
                                 Canvas.SetLeft(chargebar, clpt.X - healthbar.Width / 2);
                                 Canvas.SetTop(chargebar, clpt.Y - 55 - headbox.Height / 2);
                                 canvas.Children.Add(chargebar);
-                                
 
+                                if (healthbar.Width == 0)
+                                {
+
+                                    BitmapImage image = new BitmapImage();
+                                    image.BeginInit();
+                                    image.UriSource = new Uri("bomb.jpg", UriKind.RelativeOrAbsolute);
+                                    image.EndInit();
+                                    ImageBrush myImageBrush = new ImageBrush(image);
+
+                                    Canvas myCanvas = new Canvas();
+                                    myCanvas.Width = 300;
+                                    myCanvas.Height = 300;
+                                    myCanvas.Background = myImageBrush;
+                                    Canvas.SetLeft(myCanvas, clpt.X - headbox.Width / 2 - (myCanvas.Width/2));
+                                    Canvas.SetTop(myCanvas, clpt.Y - headbox.Height / 2 - (myCanvas.Width/ 2));
+                                    canvas.Children.Add(myCanvas);
+                                    chargebar.Width = 0;
+                                    
+                                }
                                 
                             }
                             catch
