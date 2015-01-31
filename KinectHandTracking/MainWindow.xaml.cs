@@ -28,6 +28,8 @@ namespace KinectHandTracking
         MultiSourceFrameReader _reader;
         IList<Body> _bodies;
         Dictionary<ulong, int> health;
+        Dictionary<ulong, int> atkState;
+        Dictionary<ulong, int> atkChange;
         private CoordinateMapper coordinateMapper = null;
         int attackState = 0;
         int attackChange = 0;
@@ -55,6 +57,9 @@ namespace KinectHandTracking
             facex = new double[10];
             facey = new double[10];
             health = new Dictionary<ulong, int>();
+            atkChange = new Dictionary<ulong, int>();
+            atkState = new Dictionary<ulong, int>();
+
             for (int i = 0; i < 10; i++)
             {
                 facex[i] = 0;
@@ -138,8 +143,8 @@ namespace KinectHandTracking
                                 canvas.DrawThumb(thumbLeft, _sensor.CoordinateMapper);*/
 
                                 // Find the hand states
-                                //string rightHandState = "-";
-                                //string leftHandState = "-";
+                                string rightHandState = "-";
+                                string leftHandState = "-";
 
 
                                 Ellipse headellip = new Ellipse
@@ -150,55 +155,32 @@ namespace KinectHandTracking
                                     Opacity = 0.7
                                 };
 
-                                hx = handRight.Position.X * 1000 + 900;
+                                // hx = handRight.Position.X * 1000 + 900;
                                 hy = -handRight.Position.Y * 1000 + 800;
                                 fx = handRight.Position.X;
+                                hx = 500 + fx * 3000;
                                 fy = handRight.Position.Y;
 
-                                //tblRightHandState.Text = rightHandState + "\n" + fx.ToString() + "\n" + fy.ToString();
-                                //tblLeftHandState.Text = leftHandState;
+                                tblRightHandState.Text = rightHandState + "\n" + fx.ToString() + "\n" + fy.ToString();
+                                tblLeftHandState.Text = leftHandState;
 
                                 switch (body.HandRightState)
                                 {
                                     case HandState.Open:
                                         rhandellip.Fill = new SolidColorBrush(Colors.Red);
-                                        if (attackState == 1)
-                                        {
-                                            attackChange = 0;
-                                        }
-                                        else
-                                        {
-                                            attackState = 1;
-                                            attackChange = 1;
-                                        }
+                                        atkState[body.TrackingId] = 1;
+
                                         break;
                                     case HandState.Closed:
                                         rhandellip.Fill = new SolidColorBrush(Colors.Green);
-                                        if (attackState == 2)
-                                        {
-                                            attackChange = 0;
-                                        }
-                                        else
-                                        {
-                                            attackState = 2;
-                                            attackChange = 1;
-                                        }
+                                        atkState[body.TrackingId] = 2;
                                         break;
                                     case HandState.Lasso:
                                         rhandellip.Fill = new SolidColorBrush(Colors.Yellow);
-                                        if (attackState == 3)
-                                        {
-                                            attackChange = 0;
-                                        }
-                                        else
-                                        {
-                                            attackState = 3;
-                                            attackChange = 1;
-                                        }
+                                        atkState[body.TrackingId] = 3;
                                         break;
                                     case HandState.Unknown:
-                                        attackState = 0;
-                                        attackChange = 0;
+                                        atkState[body.TrackingId] = 0;
                                         break;
                                     case HandState.NotTracked:
                                         break;
@@ -231,43 +213,29 @@ namespace KinectHandTracking
                                     health.Add(body.TrackingId, 400);
                                 }
 
-                                if (attackChange == 1)
+                                try
                                 {
-                                    if (attackState == 1)
-                                    {
-                                        if ( /*face!=ball*/ attackState != 2)
-                                            //////{
-                                            for (int j = 0; j < _bodies.Count; j++)
-                                            {
-                                                if (((facex[j] < (40 + hx)) || ((facex[j] + 100) > hx)) && ((facey[j] < (40 + hy)) || ((facey[j] + 100) > hy)))
-                                                {
-                                                    try
-                                                    {
-                                                        health[_bodies[j].TrackingId] -= 30;
-                                                        if (health[_bodies[j].TrackingId] <= 0)
-                                                        {
-                                                            health[_bodies[j].TrackingId] = 0;
-                                                        }
-                                                    }
-                                                    catch
-                                                    {
-                                                        health.Add(_bodies[j].TrackingId, 370);
-                                                    }
-                                                }
-                                            }
-                                    }
+                                    int a = atkState[body.TrackingId];
                                 }
-                                if (attackState == 2)
+                                catch
                                 {
+                                    atkState.Add(body.TrackingId, 0);
+                                }
 
-
-                                }
-                                if (attackState == 3)
+                                /*try
                                 {
-                                    //Spell
+                                    int a = atkChange[body.TrackingId];
                                 }
+                                catch
+                                {
+                                    atkChange.Add(body.TrackingId, 0);
+                                }*/
+
+                                //if (atkChange[body.TrackingId] == 1)
+                                //{
+
+                                //}
                             }
-
 
                             var headJoint = body.Joints[JointType.Head].Position;
 
@@ -297,6 +265,48 @@ namespace KinectHandTracking
                                 Fill = new SolidColorBrush(Colors.Red),
                                 Opacity = 0.7
                             };
+
+                            if (atkState[body.TrackingId] == 1)
+                            {
+                                for (int j = 0; j < _bodies.Count; j++)
+                                {
+                                    if (((facex[j] < (40 + 500 + fx * 3000)) && ((facex[j] + 100) > (500 + fx * 3000))) && ((facey[j] < (40 + hy)) && ((facey[j] + 100) > hy)))
+                                    {
+                                        try
+                                        {
+                                            if (atkState[_bodies[j].TrackingId] == 2)
+                                            {
+                                                health[_bodies[j].TrackingId] += 10;
+                                            }
+                                            else
+                                            {
+                                                health[_bodies[j].TrackingId] -= 10;
+                                                if (health[_bodies[j].TrackingId] <= 0)
+                                                {
+                                                    health[_bodies[j].TrackingId] = 0;
+                                                }
+                                            }
+
+                                        }
+                                        catch
+                                        {
+                                            health.Add(_bodies[j].TrackingId, 370);
+                                        }
+                                    }
+                                }
+                            }
+                            if (atkState[body.TrackingId] == 2)
+                            {
+                                health[_bodies[j].TrackingId] -= 4;
+                            }
+                            if (atkState[body.TrackingId] == 3)
+                            {
+                                //charge
+                            }
+                            string Testing = "right hand";
+                            string Facetesting = "Face";
+                            tblRightHandState.Text = Testing + "\n" + (500 + fx * 3000).ToString() + "\n" + hy.ToString();
+                            tblLeftHandState.Text = Facetesting + "\n" + (clpt.X - headbox.Width / 2).ToString() + "\n" + (clpt.Y - headbox.Height / 2).ToString();
                             try
                             {
                                 Canvas.SetLeft(rhandellip, 500+fx*3000);
