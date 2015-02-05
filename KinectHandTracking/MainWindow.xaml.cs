@@ -37,6 +37,10 @@ namespace KinectHandTracking
         int newchlcount = 0;
         int count1 = 0;
         int gameState = 1;
+        ColorSpacePoint clpt1;
+        double saveWidth = 0;
+        double saveHeight = 0; 
+        
 
         IList<double> facex;
         IList<double> facey;
@@ -261,6 +265,7 @@ namespace KinectHandTracking
                                 Z = headJoint.Z
                             };
                             ColorSpacePoint clpt = this.coordinateMapper.MapCameraPointToColorSpace(pt);
+                            clpt1 = this.coordinateMapper.MapCameraPointToColorSpace(pt); 
                             facex[i] = clpt.X;
                             facey[i] = clpt.Y;
                             fx -= headJoint.X;
@@ -272,6 +277,8 @@ namespace KinectHandTracking
                                 //Fill = new SolidColorBrush(Colors.Orange),
                                 Opacity = 0
                             };
+                            saveWidth = headbox.Width;
+                            saveHeight = headbox.Height;
                             Rectangle healthbar = new Rectangle
                             {
                                 Width = health[body.TrackingId],
@@ -437,10 +444,27 @@ namespace KinectHandTracking
                             myCanvas.Height = 200;
                             myCanvas.Background = myImageBrush;
                             Canvas.SetLeft(myCanvas, 500);
-                            Canvas.SetTop(myCanvas, 100);
+                            Canvas.SetTop(myCanvas, 700);
                             canvas.Children.Add(myCanvas);
                             count1++;
-
+                            newchlcount = 0;
+                            if (newchlcount < 50)
+                            {
+                                BitmapImage image1 = new BitmapImage();
+                                image1.BeginInit();
+                                image1.UriSource = new Uri("troll.png", UriKind.RelativeOrAbsolute);
+                                image1.EndInit();
+                                ImageBrush myImageBrush1 = new ImageBrush(image1);
+                                
+                                Canvas myCanvas1 = new Canvas();
+                                myCanvas1.Width = 150;
+                                myCanvas1.Height = 150;
+                                myCanvas1.Background = myImageBrush1;
+                                Canvas.SetLeft(myCanvas1, clpt1.X - this.saveWidth / 2 - (myCanvas1.Width / 2));
+                                Canvas.SetTop(myCanvas1, clpt1.Y - this.saveHeight / 2 -(myCanvas1.Width / 2));
+                                canvas.Children.Add(myCanvas1);
+                                newchlcount++;
+                            }
                         }
                         else
                             gameState = 0;
@@ -460,9 +484,29 @@ namespace KinectHandTracking
                             myCanvas.Height = 200;
                             myCanvas.Background = myImageBrush;
                             Canvas.SetLeft(myCanvas, 500);
-                            Canvas.SetTop(myCanvas, 100);
+                            Canvas.SetTop(myCanvas, 700);
                             canvas.Children.Add(myCanvas);
                             newchlcount++;
+
+                            int newchlcount1 = 0;
+                            if (newchlcount1 < 50)
+                            {
+                                BitmapImage image1 = new BitmapImage();
+                                image1.BeginInit();
+                                image1.UriSource = new Uri("troll.png", UriKind.RelativeOrAbsolute);
+                                image1.EndInit();
+                                ImageBrush myImageBrush1 = new ImageBrush(image1);
+
+                                Canvas myCanvas1 = new Canvas();
+                                myCanvas1.Width = 150;
+                                myCanvas1.Height = 150;
+                                myCanvas1.Background = myImageBrush1;
+                                Canvas.SetLeft(myCanvas1, clpt1.X - this.saveWidth / 2 - (myCanvas1.Width / 2));
+                                Canvas.SetTop(myCanvas1, clpt1.Y - this.saveHeight / 2 - (myCanvas1.Width / 2));
+                                canvas.Children.Add(myCanvas1);
+                                newchlcount1++;
+                            }
+
                         }
                     }
                 }
