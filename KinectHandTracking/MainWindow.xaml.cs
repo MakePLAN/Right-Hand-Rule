@@ -39,7 +39,13 @@ namespace KinectHandTracking
         int gameState = 1;
         ColorSpacePoint clpt1;
         double saveWidth = 0;
-        double saveHeight = 0; 
+        double saveHeight = 0;
+        ulong player1 = 0;
+        ulong player2 = 0;
+        ulong player3 = 0;
+        ulong player4 = 0;
+        int playerNum = 0;
+        bool checkPlayerCount = false; 
         
 
         IList<double> facex;
@@ -121,11 +127,38 @@ namespace KinectHandTracking
                     for (int i = 0; i < _bodies.Count; i++)
                     {
                         var body = _bodies[i];
+
+                      
                         double fx = 0, fy = 0, hx = 0, hy = 0;
                         if (body != null && body.TrackingId != 0)
                         {
-                            
+                            Console.WriteLine(playerNum);
+                            if (checkPlayerCount == false){
+                                if (playerNum == 0)
+                                {
+                                    player1 = body.TrackingId;
+                                    playerNum++;
+                                }
+                                else 
+                                {
+                                    if (body.TrackingId != player1)
+                                    {
+                                        Console.WriteLine("Hell");
+                                        player2 = body.TrackingId;
+                                        playerNum++;
+                                        checkPlayerCount = true; 
+                                    }
+                                    
+                                }
+                            }
 
+
+                            if (body.TrackingId != player1 && body.TrackingId != player2)
+                            {
+                                Console.WriteLine("Sager is idiot");
+                                break;
+                            }
+                            Console.WriteLine("Going through");
                             Ellipse rhandellip = new Ellipse
                             {
                                 Width = 40,
